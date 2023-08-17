@@ -1,9 +1,10 @@
-import {React, useState,useEffect,useDeferredValue, useTransition} from 'react'
+import {React, useState,useEffect,useDeferredValue, useTransition,Suspense} from 'react'
 import axios from "axios"
 import SingleContent from "../../components/SingleContent/SingleContent.js"
 import CustomPagination from "../../components/CustomPagination/CustomPagination.js"
 import Genres from "../../components/Genres/Genres.js"
 import useGenre from "../../hooks/useGenre";
+import Loading from "../../components/Loading/Loading";
 
 const Movies = () => {
   const [page, setPage] = useState(1)
@@ -43,6 +44,7 @@ const Movies = () => {
         setGenres={setGenres}
         setPage={setPage}
       />
+      <Suspense fallback={<Loading/>}>
       <div className="trending">
         {
           defferedContent && defferedContent.map((c)=> (
@@ -58,6 +60,7 @@ const Movies = () => {
           ))
         }
       </div>
+      </Suspense>
       {
         numOfPages>1 && (
           <CustomPagination setPage={setPage} numOfPages={numOfPages} />

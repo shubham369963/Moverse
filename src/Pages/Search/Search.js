@@ -8,10 +8,11 @@ import {
 } from "@mui/material";
 import "./Search.css";
 import SearchIcon from '@mui/icons-material/Search';
-import { useEffect, useState,useDeferredValue, useTransition } from "react";
+import { useEffect, useState,useDeferredValue, useTransition ,Suspense} from "react";
 import axios from "axios";
 import CustomPagination from "../../components/CustomPagination/CustomPagination";
 import SingleContent from "../../components/SingleContent/SingleContent";
+import Loading from "../../components/Loading/Loading";
 
 const Search = () => {
   const [type, setType] = useState(0);
@@ -91,6 +92,7 @@ const Search = () => {
           <Tab style={{ width: "50%" }} label="Search TV Series" />
         </Tabs>
       </ThemeProvider>
+      <Suspense fallback={<Loading/>}>
       <div className="trending">
         {defferedContent &&
           defferedContent.map((c) => (
@@ -105,9 +107,10 @@ const Search = () => {
             />
           ))}
         {searchText &&
-          !content &&
+          !defferedContent &&
           (type ? <h2>No Series Found</h2> : <h2>No Movies Found</h2>)}
       </div>
+      </Suspense>
       {numOfPages > 1 && (
         <CustomPagination setPage={setPage} numOfPages={numOfPages} />
       )}

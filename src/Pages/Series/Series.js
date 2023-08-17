@@ -1,8 +1,9 @@
 import axios from "axios";
-import { useEffect, useState,useDeferredValue,useTransition } from "react";
+import { useEffect, useState,useDeferredValue,useTransition,Suspense } from "react";
 import Genres from "../../components/Genres/Genres";
 import CustomPagination from "../../components/CustomPagination/CustomPagination";
 import SingleContent from "../../components/SingleContent/SingleContent";
+import Loading from "../../components/Loading/Loading";
 import useGenre from "../../hooks/useGenre";
 
 const Series = () => {
@@ -47,6 +48,7 @@ const Series = () => {
         setGenres={setGenres}
         setPage={setPage}
       />
+      <Suspense fallback={<Loading/>}>
       <div className="trending">
         {defferedContent &&
           defferedContent.map((c) => (
@@ -61,6 +63,7 @@ const Series = () => {
             />
           ))}
       </div>
+      </Suspense>
       {numOfPages > 1 && (
         <CustomPagination setPage={setPage} numOfPages={numOfPages} />
       )}

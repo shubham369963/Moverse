@@ -1,8 +1,9 @@
-import {React, useState,useDeferredValue,useTransition, useEffect} from 'react'
+import {React, useState,useDeferredValue,useTransition, useEffect,Suspense} from 'react'
 import axios from "axios"
 import SingleContent from "../../components/SingleContent/SingleContent.js"
 import "./Trending.css"
 import CustomPagination from "../../components/CustomPagination/CustomPagination.js"
+import Loading from "../../components/Loading/Loading.js"
 const Trending = () => {
   const [page, setPage] = useState(1)
   const [contents, setContents] = useState([])
@@ -26,6 +27,7 @@ const Trending = () => {
     <div>
       <span className="pageTitle">trending</span>
       <p>{isPending? "Getting..." : ""}</p>
+      <Suspense fallback={<Loading/>}>
       <div className="trending">
         {
           defferedContent && defferedContent.map((c)=> (
@@ -41,6 +43,7 @@ const Trending = () => {
           ))
         }
       </div>
+      </Suspense>
       <CustomPagination setPage={setPage} />
     </div>
   )
