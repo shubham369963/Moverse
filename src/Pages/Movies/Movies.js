@@ -1,4 +1,4 @@
-import {React, useState,useEffect} from 'react'
+import {React, useState,useEffect,useDeferredValue, useTransition} from 'react'
 import axios from "axios"
 import SingleContent from "../../components/SingleContent/SingleContent.js"
 import CustomPagination from "../../components/CustomPagination/CustomPagination.js"
@@ -14,10 +14,17 @@ const Movies = () => {
   const [genres, setGenres] = useState([])
   const genreforURL = useGenre(selectedGenres);
 
+  const defferedContent = useDeferredValue(contents);
+  const [isPending, startTransition] = useTransition();
+
   const fetchMovies = async()=>{
     const {data} = await axios.get(`https://api.themoviedb.org/3/discover/movie?api_key=${process.env.REACT_APP_API_KEY}&language=en-US&sort_by=popularity.desc&include_adult=false&include_video=false&page=${page}&with_genres=${genreforURL}`);
-    setContents(data.results)
-    setNumOfPages(data.total_pages)
+    
+    startTransition(()=>{
+      setContents(data.results)
+      setNumOfPages(data.total_pages)
+    })
+
   }
 
   useEffect(() => {
@@ -27,6 +34,7 @@ const Movies = () => {
   return (
     <div>
       <span className="pageTitle">Movies</span>
+      <p>{isPending? "Getting..." : ""}</p>
       <Genres
         type="movie"
         selectedGenres={selectedGenres}
@@ -37,7 +45,7 @@ const Movies = () => {
       />
       <div className="trending">
         {
-          contents && contents.map((c)=> (
+          defferedContent && defferedContent.map((c)=> (
           <SingleContent 
           key={c.id}  
           id={c.id}

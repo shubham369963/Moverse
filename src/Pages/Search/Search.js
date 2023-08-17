@@ -8,7 +8,7 @@ import {
 } from "@mui/material";
 import "./Search.css";
 import SearchIcon from '@mui/icons-material/Search';
-import { useEffect, useState } from "react";
+import { useEffect, useState,useDeferredValue, useTransition } from "react";
 import axios from "axios";
 import CustomPagination from "../../components/CustomPagination/CustomPagination";
 import SingleContent from "../../components/SingleContent/SingleContent";
@@ -19,6 +19,9 @@ const Search = () => {
   const [page, setPage] = useState(1);
   const [content, setContent] = useState([]);
   const [numOfPages, setNumOfPages] = useState();
+
+  const defferedContent = useDeferredValue(content);
+  const [isPending, startTransition] = useTransition();
 
   const darkTheme = createMuiTheme({
     palette: {
@@ -36,8 +39,11 @@ const Search = () => {
           process.env.REACT_APP_API_KEY
         }&language=en-US&query=${searchText}&page=${page}&include_adult=false`
       );
-      setContent(data.results);
-      setNumOfPages(data.total_pages);
+
+      startTransition(()=>{
+        setContent(data.results);
+        setNumOfPages(data.total_pages);
+      })
       // console.log(data);
     } catch (error) {
       console.error(error);
@@ -68,6 +74,7 @@ const Search = () => {
           >
             <SearchIcon fontSize="large" />
           </Button>
+          <p>{isPending? "Getting..." : ""}</p>
         </div>
         <Tabs
           value={type}
@@ -85,8 +92,8 @@ const Search = () => {
         </Tabs>
       </ThemeProvider>
       <div className="trending">
-        {content &&
-          content.map((c) => (
+        {defferedContent &&
+          defferedContent.map((c) => (
             <SingleContent
               key={c.id}
               id={c.id}

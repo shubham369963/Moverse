@@ -1,4 +1,4 @@
-import {React, useState, useEffect} from 'react'
+import {React, useState,useDeferredValue,useTransition, useEffect} from 'react'
 import axios from "axios"
 import SingleContent from "../../components/SingleContent/SingleContent.js"
 import "./Trending.css"
@@ -6,10 +6,14 @@ import CustomPagination from "../../components/CustomPagination/CustomPagination
 const Trending = () => {
   const [page, setPage] = useState(1)
   const [contents, setContents] = useState([])
+  const defferedContent = useDeferredValue(contents);
+  const [isPending, startTransition] = useTransition();
   const fetchTrending = async () =>{
     const {data} = await axios.get(`https://api.themoviedb.org/3/trending/all/day?api_key=${process.env.REACT_APP_API_KEY}&page=${page}`);
     console.log(data.results);
-    setContents(data.results)
+    startTransition(()=>{
+      setContents(data.results)
+    })
   };
 
   useEffect(() => {
@@ -21,9 +25,10 @@ const Trending = () => {
   return (
     <div>
       <span className="pageTitle">trending</span>
+      <p>{isPending? "Getting..." : ""}</p>
       <div className="trending">
         {
-          contents && contents.map((c)=> (
+          defferedContent && defferedContent.map((c)=> (
           <SingleContent 
           key={c.id}  
           id={c.id}

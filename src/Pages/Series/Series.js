@@ -1,5 +1,5 @@
 import axios from "axios";
-import { useEffect, useState } from "react";
+import { useEffect, useState,useDeferredValue,useTransition } from "react";
 import Genres from "../../components/Genres/Genres";
 import CustomPagination from "../../components/CustomPagination/CustomPagination";
 import SingleContent from "../../components/SingleContent/SingleContent";
@@ -13,12 +13,19 @@ const Series = () => {
   const [numOfPages, setNumOfPages] = useState();
   const genreforURL = useGenre(selectedGenres);
 
+
+  const defferedContent = useDeferredValue(content);
+  const [isPending, startTransition] = useTransition();
+
+  
   const fetchSeries = async () => {
     const { data } = await axios.get(
       `https://api.themoviedb.org/3/discover/tv?api_key=${process.env.REACT_APP_API_KEY}&language=en-US&sort_by=popularity.desc&include_adult=false&include_video=false&page=${page}&with_genres=${genreforURL}`
     );
-    setContent(data.results);
-    setNumOfPages(data.total_pages);
+    startTransition(()=>{
+      setContent(data.results);
+      setNumOfPages(data.total_pages);
+    })
     // console.log(data);
   };
 
@@ -31,6 +38,7 @@ const Series = () => {
   return (
     <div>
       <span className="pageTitle">Discover Series</span>
+      <p>{isPending? "Getting..." : ""}</p>
       <Genres
         type="tv"
         selectedGenres={selectedGenres}
@@ -40,8 +48,8 @@ const Series = () => {
         setPage={setPage}
       />
       <div className="trending">
-        {content &&
-          content.map((c) => (
+        {defferedContent &&
+          defferedContent.map((c) => (
             <SingleContent
               key={c.id}
               id={c.id}
